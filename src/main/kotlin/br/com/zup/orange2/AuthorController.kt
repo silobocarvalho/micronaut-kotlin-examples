@@ -4,6 +4,7 @@ package br.com.zup.orange2
 
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
+import io.micronaut.http.uri.UriBuilder
 import io.micronaut.validation.Validated
 import java.util.*
 import javax.transaction.Transactional
@@ -15,7 +16,7 @@ class AuthorController(val authorRepository: AuthorRepository) {
 
     @Post
     @Transactional
-    fun addAuthor(@Body @Valid request: NewAuthorRequest){
+    fun addAuthor(@Body @Valid request: NewAuthorRequest) : HttpResponse<Any>{
         println(request)
         val newAuthor = request.toModel()
 
@@ -25,6 +26,12 @@ class AuthorController(val authorRepository: AuthorRepository) {
 
         //println("Author cadastrado no banco: ${authorRepository.findById(1).get().name}")
 
+        val uri = UriBuilder.of("/authors/{id}").
+        expand(
+            mutableMapOf(
+                Pair("id", newAuthor.id)))
+
+        return HttpResponse.created(uri)
     }
 
     @Get
