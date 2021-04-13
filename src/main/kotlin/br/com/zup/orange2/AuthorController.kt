@@ -14,6 +14,7 @@ import javax.validation.Valid
 class AuthorController(val authorRepository: AuthorRepository) {
 
     @Post
+    @Transactional
     fun addAuthor(@Body @Valid request: NewAuthorRequest){
         println(request)
         val newAuthor = request.toModel()
@@ -48,6 +49,7 @@ class AuthorController(val authorRepository: AuthorRepository) {
     }
 
     @Put("/{id}")
+    @Transactional
     fun updateAuthor(@PathVariable id: Long, description: String) : HttpResponse<Any>{
         println("entrou put")
         val authorOptional = authorRepository.findById(id)
@@ -56,12 +58,26 @@ class AuthorController(val authorRepository: AuthorRepository) {
 
         val authorFromDb = authorOptional.get().let {
             it.description = description
+            // .update() is not necessary because this object is in manager state by JPA
+            // and we have @Transactional into this method.
+            // For that, when method ends, this object will be updated automatically.
+            // If Transactional is not used, .update() is necessary.
             authorRepository.update(it)
         }
-
         return HttpResponse.ok(DetailsAuthorResponse(authorFromDb))
-
-
     }
 
+    @Delete("/{id}")
+    @Transactional
+    fun deleteAuthor(@PathVariable id: Long) : HttpResponse<Any>{
+        println("entrou delete")
+        val authorOptional = authorRepository.findById(id)
+
+        authorOptional.let { if(it.isEmpty) return HttpResponse.notFound()  }
+
+        val authorFromDb = authorOptional.get().let {
+            authorRepository.delete(it)
+        }
+        return HttpResponse.ok()
+    }
 }
