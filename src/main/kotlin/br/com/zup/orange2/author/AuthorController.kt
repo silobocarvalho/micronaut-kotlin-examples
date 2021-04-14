@@ -1,30 +1,31 @@
-package br.com.zup.orange2
+package br.com.zup.orange2.author
 
-
-
+import br.com.zup.orange2.author.externalrequests.AddressClient
+import br.com.zup.orange2.author.dto.DetailsAuthorResponse
+import br.com.zup.orange2.author.dto.NewAuthorRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.http.uri.UriBuilder
 import io.micronaut.validation.Validated
-import java.util.*
 import javax.transaction.Transactional
 import javax.validation.Valid
 
 @Controller(value = "/authors")
 @Validated
-class AuthorController(val authorRepository: AuthorRepository) {
+class AuthorController(val authorRepository: AuthorRepository, val addressClient: AddressClient) {
 
     @Post
     @Transactional
     fun addAuthor(@Body @Valid request: NewAuthorRequest) : HttpResponse<Any>{
         println(request)
-        val newAuthor = request.toModel()
 
-        //println("Author name: ${newAuthor.name}")
+        val addressResponse = addressClient.requestAddress(request.zipcode) ?: return HttpResponse.badRequest()
+
+        val newAuthor = request.toModel(addressResponse.body())
 
         authorRepository.save(newAuthor)
 
-        //println("Author cadastrado no banco: ${authorRepository.findById(1).get().name}")
+        println("Author cadastrado no banco: ${authorRepository.findById(1).get().toString()}")
 
         val uri = UriBuilder.of("/authors/{id}").
         expand(
