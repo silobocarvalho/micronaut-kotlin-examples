@@ -5,10 +5,10 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.client.annotation.Client
 
 @Client("http://viacep.com.br/ws/")
-interface AddressClient {
+open interface AddressClient {
 
     @Get(value="{zipcode}/json/")
-    fun requestAddress(zipcode: String) : HttpResponse<AddressResponse>
+    open fun requestAddress(zipcode: String) : HttpResponse<AddressResponse>
 
 
 }
