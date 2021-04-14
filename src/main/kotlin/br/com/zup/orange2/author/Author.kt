@@ -10,7 +10,7 @@ class Author(
     val name: String,
     val email: String,
     var description: String,
-    val address: Address
+    val address: Address?
 ){
     @Id
     @GeneratedValue
@@ -20,6 +20,6 @@ class Author(
 
 
     override fun toString(): String {
-        return "Name: $name | Email: $email | Address: ${address.street} - ${address.number} - ${address.city} - ${address.state}"
+        return "Name: $name | Email: $email | Address: ${address?.street} - ${address?.number} - ${address?.city} - ${address?.state}"
     }
 }

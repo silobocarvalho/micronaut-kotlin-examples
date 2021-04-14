@@ -17,6 +17,7 @@ class AuthorController(val authorRepository: AuthorRepository, val addressClient
     @Post
     @Transactional
     fun addAuthor(@Body @Valid request: NewAuthorRequest) : HttpResponse<Any>{
+
         println(request)
 
         val addressResponse = addressClient.requestAddress(request.zipcode) ?: return HttpResponse.badRequest()
